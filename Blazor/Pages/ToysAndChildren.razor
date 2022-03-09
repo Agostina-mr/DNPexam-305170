@@ -1,0 +1,89 @@
+@page "/ToysAndChildren"
+@using Blazor.Data
+@using Blazor.Models
+@using System.Xml.Schema
+@inject KinderGardenServices services
+<h3>ToysAndChildren</h3>
+@if (children == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (!children.Any())
+{
+    <p>
+        <em>No children or Toys exist.</em>
+    </p>
+}
+else
+{
+    <p>
+        Filter by Gender: <input type="text" @oninput="@(FilterByGender)" style="width:50px"/>
+    </p>
+    @foreach (var child in childrenToDisplay)
+    {
+        <p>@child.Name is @child.Age years old . Their toys include: </p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Colour</th>
+                <th>Is favorite?</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            @foreach (var toy in child.Toys)
+            {
+                <tr>
+                    <td>@toy.Name</td>
+                    <td>@toy.Color</td>
+                    <td>@toy.IsFavourite</td>
+                    <td>
+                        <button @onclick="@(() => RemoveToy(@toy.ToyId))">
+                                                 <i class="oi oi-trash" style="color:red"/>
+                                                 </button>
+                    </td>
+                </tr>
+            }
+
+
+            </tbody>
+
+
+
+            
+        </table>
+    }
+}
+
+@code {
+    private List<Child> children = new List<Child>();
+    private List<Child> childrenToDisplay = new List<Child>();
+    protected override async Task OnInitializedAsync()
+    {
+        children = await services.GetAllChildren();
+        childrenToDisplay = children;
+
+    }
+
+    private async Task RemoveToy(int toyId)
+    {
+       await services.RemoveToy( toyId);
+        children = await services.GetAllChildren();
+        childrenToDisplay = children;
+    }
+
+    private void FilterByGender(ChangeEventArgs gender)
+    {
+        childrenToDisplay = children.Where(c => c.Gender == (string) gender.Value).ToList();
+        if ("" == (string) gender.Value)
+        {
+            childrenToDisplay = children;
+        }
+       
+    }
+
+}

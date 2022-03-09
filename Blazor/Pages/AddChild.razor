@@ -1,0 +1,51 @@
+@page "/AddChild"
+@using Blazor.Models
+@using Blazor.Data
+@inject KinderGardenServices services
+<h3>AddChild</h3>
+
+<EditForm Model="newChild" OnValidSubmit="AddNewChild">
+      <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+    <div class="form-group">
+        Name:<br/>
+        <InputText @bind-Value="newChild.Name"/>
+    </div>
+    <div class="form-group">
+        Age:<br/>
+        <InputNumber @bind-Value="newChild.Age"/>
+    </div>
+    <div class="form-group">
+        Gender:<br/>
+        <InputText @bind-Value="newChild.Gender"/>
+    </div>
+      <p class="actions">
+          <button class="btn btn-outline-dark" type="submit"> Add New Child</button>
+      </p>
+      
+      <p>@message</p>
+      
+
+</EditForm>
+
+
+@code {
+    private Child newChild = new Child();
+    private string message = "";
+
+    private async Task AddNewChild()
+    {
+        try
+        {
+            await services.AddChild(newChild);
+            message = "New Child Added successfully";
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            message = e.Message;
+        }
+    }
+}
